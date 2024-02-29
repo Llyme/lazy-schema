@@ -2,6 +2,12 @@
 
 A simple schema validation.
 
+## Installation
+
+```
+npm i lazy-schema
+```
+
 ## How to Use
 ```js
 import { schema } from 'lazy-schema'
