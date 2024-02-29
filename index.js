@@ -5,14 +5,14 @@ const SPECIAL_KEYWORDS = {
 };
 
 /**
- * __discrete__ = `False`: When `true`,
+ * \_\_discrete__ = `False`: When `true`,
  * excludes fields with a `null` default value.
  * Explicitly setting the value to `null` will include it.
  * 
- * __no_default__ = `False`: When `true`,
+ * \_\_no_default__ = `False`: When `true`,
  * default values are excluded.
  * 
- * __no_null__ = `False`: When `true`,
+ * \_\_no_null__ = `False`: When `true`,
  * `null` values will never be included.
  */
 export function schema(...schemas) {
@@ -69,7 +69,7 @@ export function schema(...schemas) {
                 if (!special_keywords.__no_null__ || data[key] != null)
                     result[key] = data[key];
             } else
-                throw `Key '${key}' does not exist!`;
+                throw new Error(`Key '${key}' does not exist!`);
         }
 
         return result;
