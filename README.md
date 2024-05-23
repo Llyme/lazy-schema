@@ -11,6 +11,7 @@ pip install lazy-schema
 ```py
 from lazy_schema import schema
 from datetime import datetime
+from bson import ObjectId
 
 exampleSchema = schema(
     stringField="Hello World!",
@@ -63,6 +64,93 @@ print(document)
     "booleanField": True,
     "lambdaField": [datetime Object]
 }
+```
+
+## SchemaPool
+
+Just a collection where you can keep all your schemas.
+
+```py
+from lazy_schema import SchemaPool
+
+schemas = SchemaPool()
+
+schemas.set(
+    "my_schema",
+    hello="world!",
+    number=123,
+)
+
+schemas.set(
+    "my_other_schema",
+    hello="there!",
+    number=456,
+)
+
+print(schemas.my_schema())
+print(schemas.my_other_schema())
+```
+
+```json
+{
+    "hello": "world!",
+    "number": 123
+}
+
+{
+    "hello": "there!",
+    "number": 456
+}
+```
+
+## Loading from MongoDB with SchemaPool
+
+You can load MongoDB documents with `SchemaPool`!
+
+### MongoDB Document
+```json
+{
+    "_id": [ObjectId],
+    "__im_a_comment__": null,
+    "hello": "world!",
+    "number": 123
+}
+```
+
+### Script
+```py
+from pymongo import MongoClient
+from lazy_schema import SchemaPool
+
+mongo = MongoClient(...)
+collection = mongo.my_database.my_schemas
+
+schemas = SchemaPool()
+
+schema = schemas.pymongo(
+    collection,
+    query={
+        "_id": ObjectId(...),
+    },
+)
+
+print(schema())
+```
+
+### Result
+```json
+{
+    // `_id` is always excluded.
+    "hello": "world!",
+    "number": 123
+}
+```
+
+You can also add it into the `SchemaPool`.
+
+```py
+...
+schema.add_to("my_schema", schemas)
 ```
 
 ## Special Keywords

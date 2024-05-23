@@ -1,1 +1,2 @@
-from .schema import schema
+from .schema import Schema, schema
+from .schema_pool import SchemaPool
