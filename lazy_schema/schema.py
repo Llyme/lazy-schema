@@ -1,5 +1,5 @@
 import json
-from typing import Any, NamedTuple, Union, Dict, TYPE_CHECKING
+from typing import Any, NamedTuple, Optional, Union, Dict, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from schema_pool import SchemaPool
@@ -22,7 +22,7 @@ class Schema(NamedTuple):
 
     def __call__(
         self,
-        *args: dict,
+        *args: Optional[dict],
         __discrete__: bool = None,  # type: ignore
         __no_default__: bool = None,  # type: ignore
         __no_null__: bool = None,  # type: ignore
@@ -38,6 +38,9 @@ class Schema(NamedTuple):
         fields: Dict[str, Any] = {}
 
         for arg in args:
+            if arg == None:
+                continue
+
             for key in arg:
                 fields[key] = arg[key]
 
@@ -97,7 +100,7 @@ class Schema(NamedTuple):
 
     @staticmethod
     def new(
-        *args: Union[str, dict],
+        *args: Union[str, dict, None],
         __discrete__=False,
         __no_default__=False,
         __no_null__=False,
@@ -120,7 +123,7 @@ class Schema(NamedTuple):
 
 
 def schema(
-    *args: Union[str, dict],
+    *args: Union[str, dict, None],
     __discrete__: bool = None,  # type: ignore
     __no_default__: bool = None,  # type: ignore
     __no_null__: bool = None,  # type: ignore
@@ -138,6 +141,9 @@ def schema(
     all_fields: dict[str, Any] = {}
 
     for arg in args:
+        if arg == None:
+            continue
+
         if isinstance(arg, str):
             with open(arg, "r") as f:
                 json_fields = json.loads(f.read())
