@@ -1,5 +1,6 @@
-from .schema import Schema
-from typing import Union
+from .value_setter import ValueSetter
+from .schema import Schema, schema
+from typing import Type, Union
 
 
 def _load_document(mongo_collection, query):
@@ -35,9 +36,14 @@ class SchemaPool:
         __discrete__=False,
         __no_default__=False,
         __no_null__=False,
+        __value_setter__: Type[ValueSetter] = None,  # type: ignore
         **kwargs,
     ):
-        return self.pymongo_query(
+        """
+        Uses `field_value` as the schema name.
+        """
+
+        _schema = self.pymongo_query(
             mongo_collection,
             {
                 field_name: field_value,
@@ -46,8 +52,13 @@ class SchemaPool:
             __discrete__=__discrete__,
             __no_default__=__no_default__,
             __no_null__=__no_null__,
+            __value_setter__=__value_setter__,
             **kwargs,
         )
+
+        _schema.add_to(field_value, self)
+
+        return _schema
 
     def pymongo_query(
         self,
@@ -57,6 +68,7 @@ class SchemaPool:
         __discrete__=False,
         __no_default__=False,
         __no_null__=False,
+        __value_setter__: Type[ValueSetter] = None,  # type: ignore
         **kwargs,
     ):
         document = _load_document(mongo_collection, query)
@@ -66,12 +78,13 @@ class SchemaPool:
                 f"Failed to retrieve schema from MongoDB!",
             )
 
-        return Schema.new(
+        return schema(
             document,
             *args,
             __discrete__=__discrete__,
             __no_default__=__no_default__,
             __no_null__=__no_null__,
+            __value_setter__=__value_setter__,
             **kwargs,
         )
 
@@ -91,22 +104,17 @@ class SchemaPool:
         __discrete__=False,
         __no_default__=False,
         __no_null__=False,
+        __value_setter__: Type[ValueSetter] = None,  # type: ignore
         **kwargs,
     ):
-        """
-        :__discrete__: When `true`, excludes fields with a `null` default value. Explicitly setting the value to `null` will include it.
-
-        :__no_default__: When `true`, default values are excluded.
-
-        :__no_null__: When `true`, `null` values will never be included.
-        """
         return self.add_schema(
             name,
-            Schema.new(
+            schema(
                 *args,
                 __discrete__=__discrete__,
                 __no_default__=__no_default__,
                 __no_null__=__no_null__,
+                __value_setter__=__value_setter__,
                 **kwargs,
             ),
         )
